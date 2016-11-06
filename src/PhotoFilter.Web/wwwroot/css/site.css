@@ -8,6 +8,7 @@
 }
 
 .subject {
+    cursor: pointer;
     height: 21%;
     margin: 2.5%;
     width: 19%;
@@ -26,10 +27,22 @@
     border-radius: 10px;
     border: none;
     color: white;
-    cursor: pointer;
     float: right;
     font-family: Georgia;
     font-size: 20px;
     padding: 10px 40px;
     text-decoration: none;
+}
+
+#loader {
+    position: fixed;
+    top: 35%;
+    left: 35%;
+}
+
+.bottom {
+    position: fixed;
+    right: 0;
+    left: 0;
+    bottom: 5px;
 }

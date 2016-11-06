@@ -10,6 +10,8 @@ function fetch() {
         $(".subject").removeClass("active");
 
         if (data.images.images.length < 1) {
+            $("#loader").hide();
+            $("#nodata").hide();
             $("#nodata").show();
         }
 
@@ -19,8 +21,14 @@ function fetch() {
                 .attr("data-blobname", data.images.images[i].blobName)
                 .attr("data-leaseid", data.images.images[i].leaseId);
         }
-
-        nextMarker = data.images.continuationToken.nextMarker;
+        
+        if (data.images.continuationToken) {
+            nextMarker = data.images.continuationToken.nextMarker;
+        } else {
+            nextMarker = null;
+        }
+        $("#loader").hide();
+        $("#nodata").hide();
         $(".subject").show();
     })
     .fail(function (a, b, c) {
@@ -76,6 +84,8 @@ $(function () {
     $("body").on("click", "#next", function () {
         post(function (response) {
             $(".subject").hide();
+            $("#nodata").hide();
+            $("#loader").show();
             fetch();
         });
     });
