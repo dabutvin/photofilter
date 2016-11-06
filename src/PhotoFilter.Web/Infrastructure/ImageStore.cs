@@ -1,6 +1,7 @@
 ﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
+using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -47,12 +48,14 @@ namespace PhotoFilter.Web.Infrastructure
 
         public async Task<bool> Sort(Image[] images)
         {
+            var queue = _queueClient.GetQueueReference("incoming");
+            await queue.CreateIfNotExistsAsync();
             foreach (var image in images)
             {
-                //await _queueStorage.QueueMessage(image);
+                await queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(image)));
             }
 
-            return false;
+            return true;
         }
     }
 }
