@@ -3,6 +3,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,13 +22,13 @@ namespace PhotoFilter.Web.Infrastructure
             _imageLease = imageLease;
         }
 
-        public async Task<FetchContract> FetchAsync(int count, BlobContinuationToken continuationToken = null)
+        private async Task<BlobResultSegment> ListBlobs(BlobContinuationToken continuationToken)
         {
-            var blobs = await _container.ListBlobsSegmentedAsync(
+            return await _container.ListBlobsSegmentedAsync(
                 prefix: string.Empty,
                 useFlatBlobListing: true,
                 blobListingDetails: BlobListingDetails.All,
-                maxResults: 36,
+                maxResults: 48,
                 currentToken: continuationToken,
                 options: new BlobRequestOptions
                 {
@@ -36,29 +37,29 @@ namespace PhotoFilter.Web.Infrastructure
                 {
                 }
             );
+        }
 
+        private async Task<Image[]> MapBlobsToImages(IEnumerable<IListBlobItem> blobs, int maxNeeded)
+        {
             var numAquiredImages = 0;
-
-            var images = await blobs.Results.ForEachAsync(async x =>
+            return (await blobs.ForEachAsync(async x =>
             {
                 try
                 {
-                    if (numAquiredImages < count)
+                    if (numAquiredImages < maxNeeded)
                     {
                         var blockBlob = (CloudBlockBlob)x;
-                        var leaseId = await _imageLease.TryAcquireLeaseAsync(blockBlob, TimeSpan.FromSeconds(30));
+                        var leaseId = await _imageLease.TryAcquireLeaseAsync(blockBlob, TimeSpan.FromSeconds(60));
 
                         if (!string.IsNullOrEmpty(leaseId))
                         {
-                            ImageLease.LeaseIdLookup[x.Uri.ToString()] = leaseId;
-                            //await _imageLease.TryReleaseLeaseAsync(blockBlob, leaseId);
-                            //await blockBlob.StartCopyAsync()
                             numAquiredImages++;
 
                             return new Image
                             {
                                 Id = x.Uri.ToString(),
                                 BlobName = blockBlob.Name,
+                                LeaseId = leaseId,
                             };
                         }
                     }
@@ -69,11 +70,23 @@ namespace PhotoFilter.Web.Infrastructure
                 }
 
                 return null;
-            });
+            })).Where(x => x != null).ToArray();
+        }
+
+        public async Task<FetchContract> FetchAsync(int count, BlobContinuationToken continuationToken = null)
+        {
+            var blobs = await ListBlobs(continuationToken);
+            var images = await MapBlobsToImages(blobs.Results, count);
+
+            while (blobs.ContinuationToken != null && images.Length < count)
+            {
+                blobs = await ListBlobs(blobs.ContinuationToken);
+                images = images.Concat(await MapBlobsToImages(blobs.Results, count - images.Length)).ToArray();
+            }
 
             return new FetchContract
             {
-                Images = images.Where(x => x != null).ToArray(),
+                Images = images,
                 ContinuationToken = blobs.ContinuationToken,
             };
         }

@@ -1,12 +1,21 @@
 ﻿body {
-    padding: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    height: 100vh;
 }
 
 .subject {
     cursor: pointer;
-    height: 200px;
-    margin: 10px;
-    width: 200px;
+    height: 21%;
+    margin: 2.5%;
+    width: 19%;
+}
+
+.subject:hover {
+    outline: 2px solid #ccc;
 }
 
 .subject.active {

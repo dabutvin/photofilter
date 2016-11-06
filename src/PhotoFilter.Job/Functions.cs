@@ -2,12 +2,13 @@
 using Microsoft.Azure.WebJobs;
 using System;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.Threading.Tasks;
 
 namespace PhotoFilter.Job
 {
     public class Functions
     {
-        public static void ProcessIncoming(
+        public static async Task ProcessIncoming(
             [QueueTrigger("incoming")] Image image,
             [Blob("testallphotos/{BlobName}", FileAccess.Read)] Stream blobInputStream,
             [Blob("testallphotos/{BlobName}")] CloudBlockBlob blobInputBlob,
@@ -22,11 +23,11 @@ namespace PhotoFilter.Job
 
             Console.WriteLine($"IsPhoto: {image.IsPhoto}");
             if (image.IsPhoto)
-                blobInputStream.CopyTo(blobPhotoOutput);
+                await blobInputStream.CopyToAsync(blobPhotoOutput);
             else
-                blobInputStream.CopyTo(blobNonPhotoOutput);
+                await blobInputStream.CopyToAsync(blobNonPhotoOutput);
 
-            // pass the leaseID and release the lease
+            await ImageLease.TryReleaseLeaseAsync(blobInputBlob, image.LeaseId);
             blobInputBlob.DeleteIfExists();
         }
     }

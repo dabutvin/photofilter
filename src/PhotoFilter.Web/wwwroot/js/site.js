@@ -8,10 +8,16 @@ function fetch() {
     })
     .success(function (data) {
         $(".subject").removeClass("active");
+
+        if (data.images.images.length < 1) {
+            $("#nodata").show();
+        }
+
         for (var i = 0; i < data.images.images.length; i++) {
             $("#image_" + i)
                 .attr("src", data.images.images[i].id)
-                .attr("data-blobname", data.images.images[i].blobName);
+                .attr("data-blobname", data.images.images[i].blobName)
+                .attr("data-leaseid", data.images.images[i].leaseId);
         }
 
         nextMarker = data.images.continuationToken.nextMarker;
@@ -35,7 +41,8 @@ function post(callback) {
         imageData.push({
             id: $(subjects[i]).attr("src"),
             isPhoto: $(subjects[i]).hasClass("active"),
-            blobName: $(subjects[i]).attr("data-blobname")
+            blobName: $(subjects[i]).attr("data-blobname"),
+            leaseId: $(subjects[i]).attr("data-leaseid")
         });
     }
 
