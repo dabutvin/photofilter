@@ -58,6 +58,7 @@ namespace PhotoFilter.Web.Infrastructure
                             return new Image
                             {
                                 Id = x.Uri.ToString(),
+                                BlobName = blockBlob.Name,
                             };
                         }
                     }

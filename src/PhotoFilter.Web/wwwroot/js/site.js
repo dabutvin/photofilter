@@ -9,7 +9,9 @@ function fetch() {
     .success(function (data) {
         $(".subject").removeClass("active");
         for (var i = 0; i < data.images.images.length; i++) {
-            $("#image_" + i).attr("src", data.images.images[i].id);
+            $("#image_" + i)
+                .attr("src", data.images.images[i].id)
+                .attr("data-blobname", data.images.images[i].blobName);
         }
 
         nextMarker = data.images.continuationToken.nextMarker;
@@ -32,7 +34,8 @@ function post(callback) {
     for (var i = 0; i < subjects.length; i++) {
         imageData.push({
             id: $(subjects[i]).attr("src"),
-            isPhoto: $(subjects[i]).hasClass("active")
+            isPhoto: $(subjects[i]).hasClass("active"),
+            blobName: $(subjects[i]).attr("data-blobname")
         });
     }
 
@@ -64,4 +67,4 @@ $(function () {
     $("body").on("click", ".subject", function () {
         $(this).toggleClass("active");
     });
-});;
+});

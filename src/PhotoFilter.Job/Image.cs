@@ -4,5 +4,6 @@
     {
         public string Id { get; set; }
         public bool IsPhoto { get; set; }
+        public string BlobName { get; set; }
     }
 }

@@ -34,7 +34,7 @@ namespace PhotoFilter.Web
             services.AddSingleton( _ =>
             {
                 var client = storageAccount.CreateCloudBlobClient();
-                var container = client.GetContainerReference("allphotos");
+                var container = client.GetContainerReference("testallphotos");
 
                 container.CreateAsync();
 
