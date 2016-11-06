@@ -12,11 +12,13 @@ namespace PhotoFilter.Web.Infrastructure
     {
         private readonly CloudBlobContainer _container;
         private readonly CloudQueueClient _queueClient;
+        private readonly ImageLease _imageLease;
 
-        public ImageStore(CloudQueueClient queueClient, CloudBlobContainer container)
+        public ImageStore(CloudQueueClient queueClient, CloudBlobContainer container, ImageLease imageLease)
         {
             _container = container;
             _queueClient = queueClient;
+            _imageLease = imageLease;
         }
 
         public async Task<FetchContract> FetchAsync(int count, BlobContinuationToken continuationToken = null)
@@ -25,42 +27,44 @@ namespace PhotoFilter.Web.Infrastructure
                 prefix: string.Empty,
                 useFlatBlobListing: true,
                 blobListingDetails: BlobListingDetails.All,
-                maxResults: 20,
+                maxResults: 36,
                 currentToken: continuationToken,
                 options: new BlobRequestOptions
                 {
-                    
                 },
                 operationContext: new OperationContext
                 {
-
                 }
             );
-
 
             var numAquiredImages = 0;
 
             var images = await blobs.Results.ForEachAsync(async x =>
             {
-                var blockBlob = (CloudBlockBlob)x;
-                if (numAquiredImages < count && blockBlob.Properties.LeaseState != LeaseState.Leased)
+                try
                 {
-                    try
+                    if (numAquiredImages < count)
                     {
-                        //await blockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(10));
-                        //await blockBlob.ReleaseLeaseAsync(AccessCondition.GenerateLeaseCondition("photolease"));
-                        //await blockBlob.StartCopyAsync()
-                        numAquiredImages++;
+                        var blockBlob = (CloudBlockBlob)x;
+                        var leaseId = await _imageLease.TryAcquireLeaseAsync(blockBlob, TimeSpan.FromSeconds(30));
 
-                        return new Image
+                        if (!string.IsNullOrEmpty(leaseId))
                         {
-                            Id = x.Uri.ToString(),
-                        };
-                    }
-                    catch (Exception exception)
-                    {
+                            ImageLease.LeaseIdLookup[x.Uri.ToString()] = leaseId;
+                            //await _imageLease.TryReleaseLeaseAsync(blockBlob, leaseId);
+                            //await blockBlob.StartCopyAsync()
+                            numAquiredImages++;
 
+                            return new Image
+                            {
+                                Id = x.Uri.ToString(),
+                            };
+                        }
                     }
+                }
+                catch (Exception exception)
+                {
+
                 }
 
                 return null;

@@ -47,6 +47,7 @@ namespace PhotoFilter.Web
            });
 
             services.AddScoped<ImageStore>();
+            services.AddScoped<ImageLease>();
 
             // Add framework services.
             services.AddMvc();

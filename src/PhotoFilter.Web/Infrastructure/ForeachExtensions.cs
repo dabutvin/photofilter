@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PhotoFilter.Web.Infrastructure
 {
-    public static class Extensions
+    public static class ForeachExtensions
     {
         public static Task ForEachAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, Task> taskSelector,
             CancellationToken token, int initialRequestCount = 10, int maxRequestCount = 20)
