@@ -7,9 +7,8 @@ function fetch() {
         "nextMarker": nextMarker
     })
     .success(function (data) {
-        var numImages = data.images.images.length;
-
-        for (var i = 0; i < numImages; i++) {
+        $(".subject").removeClass("active");
+        for (var i = 0; i < data.images.images.length; i++) {
             $("#image_" + i).attr("src", data.images.images[i].id);
         }
 
@@ -33,7 +32,7 @@ function post(callback) {
     for (var i = 0; i < subjects.length; i++) {
         imageData.push({
             id: $(subjects[i]).attr("src"),
-            isPhoto: $(subjects[i]).data("isphoto")
+            isPhoto: $(subjects[i]).hasClass("active")
         });
     }
 
@@ -60,5 +59,9 @@ $(function () {
             $(".subject").hide();
             fetch();
         });
+    });
+
+    $("body").on("click", ".subject", function () {
+        $(this).toggleClass("active");
     });
 });;

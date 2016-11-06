@@ -3,6 +3,12 @@
 }
 
 .subject {
-    height: 100px;
-    width: 100px;
+    cursor: pointer;
+    height: 200px;
+    margin: 10px;
+    width: 200px;
+}
+
+.subject.active {
+    outline: 6px solid red;
 }

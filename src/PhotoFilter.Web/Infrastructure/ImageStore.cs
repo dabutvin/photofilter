@@ -2,6 +2,7 @@
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,11 +25,11 @@ namespace PhotoFilter.Web.Infrastructure
                 prefix: string.Empty,
                 useFlatBlobListing: true,
                 blobListingDetails: BlobListingDetails.All,
-                maxResults: count,
+                maxResults: 20,
                 currentToken: continuationToken,
                 options: new BlobRequestOptions
                 {
-
+                    
                 },
                 operationContext: new OperationContext
                 {
@@ -36,12 +37,38 @@ namespace PhotoFilter.Web.Infrastructure
                 }
             );
 
+
+            var numAquiredImages = 0;
+
+            var images = await blobs.Results.ForEachAsync(async x =>
+            {
+                var blockBlob = (CloudBlockBlob)x;
+                if (numAquiredImages < count && blockBlob.Properties.LeaseState != LeaseState.Leased)
+                {
+                    try
+                    {
+                        //await blockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(10));
+                        //await blockBlob.ReleaseLeaseAsync(AccessCondition.GenerateLeaseCondition("photolease"));
+                        //await blockBlob.StartCopyAsync()
+                        numAquiredImages++;
+
+                        return new Image
+                        {
+                            Id = x.Uri.ToString(),
+                        };
+                    }
+                    catch (Exception exception)
+                    {
+
+                    }
+                }
+
+                return null;
+            });
+
             return new FetchContract
             {
-                Images = blobs.Results.Select(x => new Image
-                {
-                    Id = x.Uri.ToString(),
-                }).ToArray(),
+                Images = images.Where(x => x != null).ToArray(),
                 ContinuationToken = blobs.ContinuationToken,
             };
         }
