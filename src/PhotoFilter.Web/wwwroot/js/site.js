@@ -62,6 +62,15 @@ function post(callback) {
     });
 }
 
+function countit() {
+    $.getJSON("home/CountApi/")
+    .success(function (data) {
+        $("#numtotal").text(data.numTotal);
+        $("#numphoto").text(data.numPhoto);
+        $("#numnonphoto").text(data.numNonPhoto);
+    });
+}
+
 $(function () {
     fetch();
     $("body").on("click", "#next", function () {
@@ -71,7 +80,10 @@ $(function () {
         });
     });
 
-    $("body").on("click", ".subject", function () {
+    $("body").on("click", ".subject", function (e) {
+        e.preventDefault();
         $(this).toggleClass("active");
     });
+
+    //countit();
 });

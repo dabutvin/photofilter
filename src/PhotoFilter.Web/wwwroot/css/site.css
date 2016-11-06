@@ -8,7 +8,6 @@
 }
 
 .subject {
-    cursor: pointer;
     height: 21%;
     margin: 2.5%;
     width: 19%;
@@ -22,14 +21,15 @@
     outline: 6px solid red;
 }
 
-button {
+.button {
     background: #607D8B;
-    border: none;
     border-radius: 10px;
+    border: none;
     color: white;
     cursor: pointer;
     float: right;
-    padding: 10px 40px;
-    font-size: 20px;
     font-family: Georgia;
+    font-size: 20px;
+    padding: 10px 40px;
+    text-decoration: none;
 }

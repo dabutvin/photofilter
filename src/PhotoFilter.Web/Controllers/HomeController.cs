@@ -8,9 +8,12 @@ namespace PhotoFilter.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ImageStore _imageStore;
-        public HomeController(ImageStore imageStore)
+        private readonly ImageCount _imageCount;
+
+        public HomeController(ImageStore imageStore, ImageCount imageCount)
         {
             _imageStore = imageStore;
+            _imageCount = imageCount;
         }
 
         public IActionResult Index()
@@ -37,6 +40,14 @@ namespace PhotoFilter.Web.Controllers
             return Json(new
             {
                 result = await _imageStore.Sort(data.Images),
+            });
+        }
+
+        public async Task<ActionResult> CountApi()
+        {
+            return Json(new
+            {
+                result = await _imageCount.CountAsync(),
             });
         }
 

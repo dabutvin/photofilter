@@ -12,14 +12,46 @@ namespace PhotoFilter.Web.Infrastructure
     public class ImageStore
     {
         private readonly CloudBlobContainer _container;
-        private readonly CloudQueueClient _queueClient;
+        private readonly CloudQueue _queue;
         private readonly ImageLease _imageLease;
 
-        public ImageStore(CloudQueueClient queueClient, CloudBlobContainer container, ImageLease imageLease)
+        public ImageStore(CloudQueueClient queueClient, CloudBlobClient blobClient, ImageLease imageLease)
         {
-            _container = container;
-            _queueClient = queueClient;
+            _container = blobClient.GetContainerReference("testallphotos");
+            _container.CreateIfNotExistsAsync();
+
+            _queue = queueClient.GetQueueReference("incoming");
+            _queue.CreateIfNotExistsAsync();
+
             _imageLease = imageLease;
+        }
+
+        public async Task<FetchContract> FetchAsync(int count, BlobContinuationToken continuationToken = null)
+        {
+            var blobs = await ListBlobs(continuationToken);
+            var images = await MapBlobsToImages(blobs.Results, count);
+
+            while (blobs.ContinuationToken != null && images.Length < count)
+            {
+                blobs = await ListBlobs(blobs.ContinuationToken);
+                images = images.Concat(await MapBlobsToImages(blobs.Results, count - images.Length)).ToArray();
+            }
+
+            return new FetchContract
+            {
+                Images = images,
+                ContinuationToken = blobs.ContinuationToken,
+            };
+        }
+
+        public async Task<bool> Sort(Image[] images)
+        {
+            await images.ForEachAsync(async image =>
+            {
+                await _queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(image)));
+            });
+
+            return true;
         }
 
         private async Task<BlobResultSegment> ListBlobs(BlobContinuationToken continuationToken)
@@ -71,36 +103,6 @@ namespace PhotoFilter.Web.Infrastructure
 
                 return null;
             })).Where(x => x != null).ToArray();
-        }
-
-        public async Task<FetchContract> FetchAsync(int count, BlobContinuationToken continuationToken = null)
-        {
-            var blobs = await ListBlobs(continuationToken);
-            var images = await MapBlobsToImages(blobs.Results, count);
-
-            while (blobs.ContinuationToken != null && images.Length < count)
-            {
-                blobs = await ListBlobs(blobs.ContinuationToken);
-                images = images.Concat(await MapBlobsToImages(blobs.Results, count - images.Length)).ToArray();
-            }
-
-            return new FetchContract
-            {
-                Images = images,
-                ContinuationToken = blobs.ContinuationToken,
-            };
-        }
-
-        public async Task<bool> Sort(Image[] images)
-        {
-            var queue = _queueClient.GetQueueReference("incoming");
-            await queue.CreateIfNotExistsAsync();
-            foreach (var image in images)
-            {
-                await queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(image)));
-            }
-
-            return true;
         }
     }
 }

@@ -33,12 +33,7 @@ namespace PhotoFilter.Web
             var storageAccount = CloudStorageAccount.Parse(Configuration.GetSection("Storage")["ConnectionString"]);
             services.AddSingleton( _ =>
             {
-                var client = storageAccount.CreateCloudBlobClient();
-                var container = client.GetContainerReference("testallphotos");
-
-                container.CreateAsync();
-
-                return container;
+                return storageAccount.CreateCloudBlobClient();
             });
 
             services.AddSingleton(_ =>
@@ -48,6 +43,7 @@ namespace PhotoFilter.Web
 
             services.AddScoped<ImageStore>();
             services.AddScoped<ImageLease>();
+            services.AddScoped<ImageCount>();
 
             // Add framework services.
             services.AddMvc();
