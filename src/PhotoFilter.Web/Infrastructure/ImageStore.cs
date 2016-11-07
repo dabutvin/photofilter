@@ -17,7 +17,7 @@ namespace PhotoFilter.Web.Infrastructure
 
         public ImageStore(CloudQueueClient queueClient, CloudBlobClient blobClient, ImageLease imageLease)
         {
-            _container = blobClient.GetContainerReference("testallphotos");
+            _container = blobClient.GetContainerReference("allphotos");
             _container.CreateIfNotExistsAsync();
 
             _queue = queueClient.GetQueueReference("incoming");

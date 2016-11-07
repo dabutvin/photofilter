@@ -10,10 +10,10 @@ namespace PhotoFilter.Job
     {
         public static async Task ProcessIncoming(
             [QueueTrigger("incoming")] Image image,
-            [Blob("testallphotos/{BlobName}", FileAccess.Read)] Stream blobInputStream,
-            [Blob("testallphotos/{BlobName}")] CloudBlockBlob blobInputBlob,
-            [Blob("testphoto/{BlobName}", FileAccess.Write)] Stream blobPhotoOutput,
-            [Blob("testnonphoto/{BlobName}", FileAccess.Write)] Stream blobNonPhotoOutput)
+            [Blob("allphotos/{BlobName}", FileAccess.Read)] Stream blobInputStream,
+            [Blob("allphotos/{BlobName}")] CloudBlockBlob blobInputBlob,
+            [Blob("confirmedphotos/{BlobName}", FileAccess.Write)] Stream blobPhotoOutput,
+            [Blob("notphotos/{BlobName}", FileAccess.Write)] Stream blobNonPhotoOutput)
         {
             if(blobInputStream == null)
             {

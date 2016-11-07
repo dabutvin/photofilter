@@ -14,13 +14,13 @@ namespace PhotoFilter.Web.Infrastructure
 
         public ImageCount(CloudBlobClient blobClient)
         {
-            _allPhotosContainer = blobClient.GetContainerReference("testallphotos");
+            _allPhotosContainer = blobClient.GetContainerReference("allphotos");
             _allPhotosContainer.CreateIfNotExistsAsync();
 
-            _numPhotoContainer = blobClient.GetContainerReference("testphoto");
+            _numPhotoContainer = blobClient.GetContainerReference("confirmedphotos");
             _numPhotoContainer.CreateIfNotExistsAsync();
 
-            _numNonPhotosContainer = blobClient.GetContainerReference("testnonphoto");
+            _numNonPhotosContainer = blobClient.GetContainerReference("notphotos");
             _numNonPhotosContainer.CreateIfNotExistsAsync();
         }
 
