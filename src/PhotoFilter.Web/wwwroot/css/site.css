@@ -9,9 +9,9 @@
 
 .subject {
     cursor: pointer;
-    height: 21%;
-    margin: 2.5%;
-    width: 19%;
+    height: 16%;
+    margin: 1.5%;
+    width: 29%;
 }
 
 .subject:hover {
@@ -27,11 +27,21 @@
     border-radius: 10px;
     border: none;
     color: white;
-    float: right;
+    display: block;
     font-family: Georgia;
     font-size: 20px;
-    padding: 10px 40px;
+    margin-top: 16px;
+    padding: 20px 40px;
+    text-align: center;
     text-decoration: none;
+}
+
+.secondary.button {
+    background: transparent;
+    color: black;
+    border: 1px solid black;
+    font-size: 15px;
+    padding: 10px 40px;
 }
 
 #loader {
@@ -41,8 +51,39 @@
 }
 
 .bottom {
+    border-left: 1px solid black;
+    bottom: 4%;
+    padding-left: 20px;
     position: fixed;
-    right: 0;
-    left: 0;
-    bottom: 5px;
+    right: 1%;
+    width: 10%;
+    display: none;
+}
+
+.mobile-only {
+    display: block !important;
+}
+
+@media only screen and (min-width: 1200px) {
+    .bottom {
+        display: block !important;
+    }
+
+    .mobile-buttons, .mobile-only {
+        display: none !important;
+    }
+
+    .subject {
+        width: 19%;
+        height: 26%;
+    }
+}
+
+.instructions {
+    margin: 0;
+    text-align: center;
+}
+
+ul {
+    padding-left: 15px;
 }

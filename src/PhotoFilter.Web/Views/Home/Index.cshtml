@@ -1,5 +1,6 @@
-﻿@for(var i = 0; i < 12; i++)
-{
+﻿<p style="margin: 10px 0 0 2%; font-size: 18px;">For each screen of images, select the photographs.<br> <a class="mobile-only" href="/home/about/">Full instructions</a></p>
+    @for(var i = 0; i < 12; i++)
+    {
     <img class="subject" id="image_@i" alt="" />
 }
 
@@ -14,10 +15,34 @@
 
 <div class="bottom">
     <div>
-        <span id="numtotal">xx</span>total images remaining
-        <span id="numphoto">xx</span> total photos collected
-        <span id="numnonphoto">xx</span> total non photos discarded
-        <a class="button" href="#" id="next">Mark Selected Photographic</a>
-        <a class="button" href="/">Reset</a>
-    </div>
+        <h1>Photo Filters</h1>
+        <a href="/home/about/">Full instructions</a>
+        <p>Help us create a data set of photographs to improve Cognitive Services' computer vision algorithms to make them work better with Office.</p>
+        <p>For each screen of images, select the photographic images. <b>Press "Mark these as photos" to submit your selection and move on to the next set of photos.</b></p>
+        <p>Don't spend too much time on one set of photos. If you're not sure if something is a photo, don't select it.</p>
+
+        <b>Select:</b><ul>
+        <li>Photos with no text</li>
+        <li>Photos of objects with the background removed</li>
+        <li>Photos with cropped or feathered edges</li>
+        <li>Photos with minimal overlayed text (i.e. watermarks)</li>
+    </ul>
+    <b>Do not select:</b><ul>
+    <li>Photos with excessive overlayed text </li>
+    <li>Screenshots</li>
+    <li>Clipart</li>
+    <li>Drawings</li>
+    <li>Logos</li>
+    <li>3D models</li>
+    <li>Cartoons</li>
+    <li>Anything indiscernable</li>
+</ul>
+<a class="button" href="#" id="next">Mark these as photos</a>
+<a class="button secondary" href="/">Refresh</a>
+</div>
+</div>
+
+<div class="mobile-buttons">
+    <a class="button" href="#" id="next">Mark these as photos</a>
+    <a class="button secondary" href="/">Refresh</a>
 </div>
