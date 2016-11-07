@@ -82,6 +82,7 @@ function countit() {
 $(function () {
     fetch();
     $("body").on("click", "#next", function () {
+        $("#next").text("No photos");
         post(function (response) {
             $(".subject").hide();
             $("#nodata").hide();
@@ -93,6 +94,11 @@ $(function () {
     $("body").on("click", ".subject", function (e) {
         e.preventDefault();
         $(this).toggleClass("active");
+        if ($(".active").length > 0) {
+            $("#next").text("Mark these as photos");
+        } else {
+            $("#next").text("No photos");
+        }
     });
 
     //countit();
