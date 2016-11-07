@@ -48,6 +48,8 @@ namespace PhotoFilter.Web.Infrastructure
         {
             await images.ForEachAsync(async image =>
             {
+                var blob = _container.GetBlobReference(image.BlobName);
+                try { await blob.RenewLeaseAsync(new AccessCondition { LeaseId = image.LeaseId }); } catch { }
                 await _queue.AddMessageAsync(new CloudQueueMessage(JsonConvert.SerializeObject(image)));
             });
 
