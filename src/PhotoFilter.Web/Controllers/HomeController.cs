@@ -67,7 +67,7 @@ namespace PhotoFilter.Web.Controllers
             return View(scores.Select(x => new Score
             {
                 Email = x.Name,
-                Scoring = x.Value,
+                Scoring = int.Parse(x.Value),
             })
             .OrderByDescending(x => x.Scoring)
             .ToArray());
