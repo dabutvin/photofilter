@@ -19,7 +19,9 @@ namespace PhotoFilter.Job
                 Resetredis();
             }
             catch { }
-            var host = new JobHost();
+            var config = new JobHostConfiguration();
+            config.UseTimers();
+            var host = new JobHost(config);
             host.RunAndBlock();
         }
     }
