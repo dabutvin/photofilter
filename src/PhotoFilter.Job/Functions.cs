@@ -5,6 +5,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.WindowsAzure.Storage.Table;
+using StackExchange.Redis;
 
 namespace PhotoFilter.Job
 {
@@ -80,6 +81,28 @@ namespace PhotoFilter.Job
                 {
                     var insertOperation = TableOperation.Insert(highScoreFromRedis);
                     tableBinding.Execute(insertOperation);
+                }
+            }
+        }
+
+        [Singleton]
+        public static async Task ProcessRestore(
+            [TimerTrigger("00:01:25", RunOnStartup = true)] TimerInfo timerInfo,
+            [Table("highscore")] CloudTable tableBinding)
+        {
+            var existingScoresFromTable = tableBinding
+                    .CreateQuery<Highscore>()
+                    .AsQueryable()
+                    .ToArray();
+
+            var highscoredb = Program.Redis.GetDatabase();
+
+            foreach(var highscoreFromTable in existingScoresFromTable)
+            {
+                var redisHighScore = await highscoredb.HashGetAsync("scores", highscoreFromTable.RowKey);
+                if (redisHighScore == RedisValue.Null || int.Parse(redisHighScore) < highscoreFromTable.Score)
+                {
+                    await highscoredb.HashSetAsync("scores", highscoreFromTable.RowKey, highscoreFromTable.Score);
                 }
             }
         }
