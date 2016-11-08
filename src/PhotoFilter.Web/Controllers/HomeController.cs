@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.WindowsAzure.Storage.Blob;
 using PhotoFilter.Web.Infrastructure;
+using StackExchange.Redis;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PhotoFilter.Web.Controllers
@@ -9,11 +11,13 @@ namespace PhotoFilter.Web.Controllers
     {
         private readonly ImageStore _imageStore;
         private readonly ImageCount _imageCount;
+        private readonly ConnectionMultiplexer _redisConnection;
 
-        public HomeController(ImageStore imageStore, ImageCount imageCount)
+        public HomeController(ImageStore imageStore, ImageCount imageCount, ConnectionMultiplexer redisConnection)
         {
             _imageStore = imageStore;
             _imageCount = imageCount;
+            _redisConnection = redisConnection;
         }
 
         public IActionResult Index()
@@ -54,6 +58,19 @@ namespace PhotoFilter.Web.Controllers
         public IActionResult About()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Leaderboard()
+        {
+            var db = _redisConnection.GetDatabase();
+            var scores = await db.HashGetAllAsync("scores");
+            return View(scores.Select(x => new Score
+            {
+                Email = x.Name,
+                Scoring = x.Value,
+            })
+            .OrderByDescending(x => x.Scoring)
+            .ToArray());
         }
 
         public IActionResult Error()

@@ -29,6 +29,17 @@ namespace PhotoFilter.Job
 
             await ImageLease.TryReleaseLeaseAsync(blobInputBlob, image.LeaseId);
             blobInputBlob.DeleteIfExists();
+
+            try
+            {
+                var highscoredb = Program.Redis.GetDatabase();
+                await highscoredb.HashIncrementAsync("scores", image.Email);
+            }
+            catch
+            {
+                Program.Resetredis();
+                throw;
+            }
         }
     }
 }

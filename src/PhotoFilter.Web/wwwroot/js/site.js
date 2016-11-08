@@ -1,4 +1,5 @@
 ﻿var nextMarker = null;
+var email = "";
 
 function fetch() {
     $.getJSON("/home/LoaderApi/",
@@ -50,7 +51,8 @@ function post(callback) {
             id: $(subjects[i]).attr("src"),
             isPhoto: $(subjects[i]).hasClass("active"),
             blobName: $(subjects[i]).attr("data-blobname"),
-            leaseId: $(subjects[i]).attr("data-leaseid")
+            leaseId: $(subjects[i]).attr("data-leaseid"),
+            email: email
         });
     }
 
@@ -101,5 +103,8 @@ $(function () {
         }
     });
 
-    //countit();
+    $.getJSON("/.auth/me")
+        .success(function(userdata) {
+            email = userdata[0].user_id;
+        });
 });

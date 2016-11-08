@@ -1,0 +1,9 @@
+﻿@model PhotoFilter.Web.Infrastructure.Score[]
+
+<h1>Leaderboard</h1>
+<ul style="margin-left: 50px;">
+    @foreach (var score in Model)
+    {
+        <li>@score.Email : @score.Scoring</li>
+    }
+</ul>

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage;
 using PhotoFilter.Web.Infrastructure;
+using StackExchange.Redis;
 
 namespace PhotoFilter.Web
 {
@@ -40,6 +41,11 @@ namespace PhotoFilter.Web
            {
                return storageAccount.CreateCloudQueueClient();
            });
+
+            services.AddSingleton(_ =>
+            {
+                return ConnectionMultiplexer.Connect("highscore.redis.cache.windows.net,abortConnect=false,ssl=true,password=bm74xhq66IbzLtCnkWj+34thhsV0pEIYsKDZStJje1E=");
+            });
 
             services.AddScoped<ImageStore>();
             services.AddScoped<ImageLease>();
