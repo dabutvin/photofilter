@@ -2,9 +2,9 @@
 
 <a href="/">Back</a>
 <h1>Leaderboard</h1>
-<ul style="margin-left: 50px;">
+<ol>
     @foreach (var score in Model)
     {
         <li>@score.Email : @score.Scoring</li>
     }
-</ul>
+</ol>
